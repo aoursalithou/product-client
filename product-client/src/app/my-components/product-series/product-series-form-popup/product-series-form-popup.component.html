@@ -1,0 +1,189 @@
+<div fxLayout="column">
+
+  <div fxLayoutAlign="space-between center">
+
+    <h2 mat-dialog-title>{{id ? 'Edit product Series' : 'Create product Series'}}</h2>
+
+    <button mat-icon-button tabindex="-1" (click)="onClose()">
+      <mat-icon matTooltip="close">close</mat-icon>
+    </button>
+  </div>
+
+  <mat-divider style="margin-bottom:15px"></mat-divider>
+
+  <div></div>
+
+  <form [formGroup]="form">
+
+    <div fxLayout="row">
+
+      <div fxFlex="45" fxLayout="column">
+        <div style="width:100%" fxLayout="row">
+          <mat-form-field *ngIf="showInput" fxFlex="82" appearance="fill">
+            <mat-label>Enter product Series Code</mat-label>
+            <input [formControl]="form.controls.productSeriesCode" matInput>
+          </mat-form-field>
+
+          <mat-dialog-actions fxFlex="18" *ngIf="showGenerateQrButton" style="height:100%;margin-left:15px"
+            fxLayoutAlign="center center">
+            <button [disabled]="!form.controls.productSeriesCode.value" (click)="hideInputButtonShowQrCode()"
+              class="mat-raised-button mat-primary scanner-button">Generate Qr
+            </button>
+          </mat-dialog-actions>
+
+          <div *ngIf="showQrCode" fxFlex>
+            <qrcode style="cursor:pointer" (click)="saveAsImage(parent)" #parent
+              [qrdata]="form.controls.productSeriesCode.value" [width]="150" [elementType]="'canvas'"
+              [errorCorrectionLevel]="'M'">
+            </qrcode>
+            <mat-dialog-actions fxFlex="45" style="height:100%">
+              <button (click)="hideQrCodeShowInputButton()"
+                class="mat-raised-button mat-primary scanner-button"><span>Generate
+                  New Qr</span></button>
+            </mat-dialog-actions>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div fxLayout="row">
+
+      <div fxFlex="45" fxLayout="column">
+
+        <mat-card>
+
+          <h2 style="color:black">Available products<span style="padding-left:20px"></span>
+          </h2>
+
+          <div class="header">
+
+            <div fxLayoutAlign="start center" fxLayout="row" class="title">
+
+              <div fxFlex="5" (click)="sort(filteredUnconnectedProductsIds, isAscUnconnectedProductsIds);
+              isAscUnconnectedProductsIds = !isAscUnconnectedProductsIds">
+                <mat-icon matTooltip="Ascending" *ngIf="isAscUnconnectedProductsIds" style="color:green;">expand_less
+                </mat-icon>
+                <mat-icon matTooltip="Descending" *ngIf="!isAscUnconnectedProductsIds" style="color: red;">
+                  expand_more
+                </mat-icon>
+              </div>
+
+              <div style="padding-left:15px">
+                <mat-form-field>
+                  <input matInput placeholder="Search" type="text"
+                    (ngModelChange)="filterUnconnectedProductsIds($event)"
+                    formControlName="filteredUnConnectedproduct" />
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+
+          <div style="max-height: 476px;min-height: 476px;" class="custom-scroll custom-scroll-table">
+
+            <mat-divider></mat-divider>
+
+            <table style="margin-top:10px;width:100%" border=1 frame=void rules=rows>
+              <thead>
+                <tr>
+                  <th style="text-align: left" [style.width.%]="33.3">Name</th>
+                  <th style="text-align: left" [style.width.%]="33.3">Description</th>
+                  <th style="text-align: left" [style.width.%]="33.3">Lot</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="text-align: center;padding:15px" *ngIf="filteredUnconnectedProductsIds.length == 0">
+                  <td colspan="2" style="text-align: center;" class="no-data">
+                    No Data
+                  </td>
+                </tr>
+                <tr style="padding:15px" *ngFor="let item of filteredUnconnectedProductsIds; let i = index"
+                  (click)="onSelectRowproduct(item.id, 0, i, $event)"
+                  [ngClass]="isSelectedproduct(item, 0) ? 'selected': ''">
+                  <td style="text-align: left;">{{item.name ? item.name : '-' }}</td>
+                  <td style="text-align: left;">{{item.description ? item.description : '-' }}</td>
+                  <td style="text-align: left;">{{item.productLot ? item.productLot : '-' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </mat-card>
+      </div>
+
+      <div fxFlex="10" fxLayoutAlign="center center" fxLayout="column">
+        <button mat-icon-button (click)="onMoveproduct('RIGHT', $event)">
+          <mat-icon>arrow_right</mat-icon>
+        </button>
+        <button mat-icon-button (click)="onMoveproduct('LEFT', $event)">
+          <mat-icon>arrow_left</mat-icon>
+        </button>
+      </div>
+
+      <div fxFlex="45" fxLayout="column">
+
+        <mat-card>
+
+          <h2 style="color:black">Selected products<span style="padding-left:20px"></span>
+          </h2>
+
+          <div class="header">
+
+            <div fxLayoutAlign="start center" fxLayout="row" class="title">
+
+              <div fxFlex="5" (click)="sort(filteredconnectedProductsIds, isAscconnectedProductsIds);
+              isAscconnectedProductsIds = !isAscconnectedProductsIds"
+                [ngStyle]="{'color': this.connectedProductsIds.length > 0 ? 'green' : '#dbdbdb'}">
+                <mat-icon matTooltip="Ascending" *ngIf="isAscconnectedProductsIds" style="color:green;">expand_less
+                </mat-icon>
+                <mat-icon matTooltip="Descending" *ngIf="!isAscconnectedProductsIds" style="color: red;">expand_more
+                </mat-icon>
+              </div>
+
+              <div style="padding-left:15px">
+                <mat-form-field>
+                  <input matInput placeholder="Search" type="text"
+                    (ngModelChange)="filterconnectedProductsIds($event)"
+                    formControlName="filteredConnectedproduct" />
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+
+          <div style="max-height: 476px;min-height: 476px;" class="custom-scroll custom-scroll-table">
+
+            <mat-divider></mat-divider>
+
+            <table style="margin-top:10px;width:100%" border=1 frame=void rules=rows>
+              <thead>
+                <tr>
+                  <th style="text-align: left" [style.width.%]="33.3">Name</th>
+                  <th style="text-align: left" [style.width.%]="33.3">Description</th>
+                  <th style="text-align: left" [style.width.%]="33.3">Lot</th>
+                </tr>
+              </thead>
+              <tbody style="line-height: 2em;">
+                <tr style="text-align: center;padding:15px" *ngIf="filteredconnectedProductsIds.length == 0">
+                  <td colspan="2" style="text-align: center;" class="no-data">
+                    No Data
+                  </td>
+                </tr>
+                <tr style="text-align: center;padding:15px"
+                  *ngFor="let item of filteredconnectedProductsIds; let i = index"
+                  (click)="onSelectRowproduct(item.id, 1, i, $event)"
+                  [ngClass]="isSelectedproduct(item, 1) ? 'selected': ''">
+                  <td style="text-align: left;">{{item.name ? item.name : '-' }}</td>
+                  <td style="text-align: left;">{{item.description ? item.description : '-' }}</td>
+                  <td style="text-align: left;">{{item.productLot ? item.productLot : '-' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+
+    <mat-dialog-actions fxLayoutAlign="center center">
+      <button (click)="onSaveproductSeries()" [disabled]="!form.valid" type="submit"
+        class="mat-raised-button mat-primary">Save</button>
+    </mat-dialog-actions>
+  </form>
+</div>
